@@ -9,7 +9,7 @@ from sqlalchemy import create_engine, func
 from flask import Flask, jsonify
 
 # %%
-engine = create_engine('sqlite:///hawaii.sqlite')
+engine = create_engine('sqlite:///hawaii.sqlite?check_same_thread=False')
 Base = automap_base()
 Base.prepare(engine, reflect=True)
 Measurement = Base.classes.measurement
@@ -31,7 +31,7 @@ def welcome():
     /api/v1.0/temp/start/end
     ''')
 # %%
-@app.route('/api/v1.0/precipitation')
+@app.route("/api/v1.0/precipitation")
 
 def precipitation():
     prev_year = dt.date(2017,8,23) - dt.timedelta(days=365)
@@ -63,7 +63,10 @@ def stats(start = None, end = None):
     if not end:
         results = session.query(*sel).filter(Measurement.date >= start).filter(Measurement.date <= end).all()
         temps = list(np.ravel(results))
+        return jsonify(temps)
     
     results = session.query(*sel).filter(Measurement.date >= start).filter(Measurement.date <= end).all()
     temps = list(np.ravel(results))
     return jsonify(temps=temps)
+
+app.run(threaded=True)
